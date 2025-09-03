@@ -75,7 +75,7 @@ const customerSchema = new mongoose.Schema(
 
     products: [productSchema],         
     blogs: [blogSchema],               
-    businessHours: businessHoursSchema,                   
+    businessHours: { type: [businessHoursSchema], default: [] },                  
   },
   { timestamps: true }
 );

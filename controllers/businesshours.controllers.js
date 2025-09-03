@@ -1,98 +1,115 @@
-const BusinessHours = require("../models/Businesshours");
+const Customer = require("../models/Customer.js");
+const cloudinary = require("../config/cloudinary.js");
+const fs = require("fs");
 
-async function addtime(req, res) {
+// ======================= CREATE BUSINESS HOURS =======================
+const createBusinessHours = async (req, res) => {
   try {
-    const { monday, tuesday, wednesday, thursday, friday, saturday, sunday } =
-      req.body;
+    const { customerId } = req.params;
+    const { monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body;
 
-    const newTime = new BusinessHours({
-      monday,
-      tuesday,
-      wednesday,
-      thursday,
-      friday,
-      saturday,
-      sunday,
-      adminId: req.admin._id,
-    });
-
-    await newTime.save();
-
-    return res
-      .status(201)
-      .json({ message: "Time added successfully", data: newTime });
-  } catch (error) {
-    console.error("Error in addtime:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
-}
-
-async function updatetime(req, res) {
-  try {
-    const { id } = req.params;
-    const { monday, tuesday, wednesday, thursday, friday, saturday, sunday } =
-      req.body;
-
-    const businessHours = await BusinessHours.findById(id);
-
-    if (!businessHours) {
-      return res.status(404).json({ message: "Business hours not found" });
+    // Find customer
+    const customer = await Customer.findById(customerId);
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
     }
 
-    if (monday) businessHours.monday = monday;
-    if (tuesday) businessHours.tuesday = tuesday;
-    if (wednesday) businessHours.wednesday = wednesday;
-    if (thursday) businessHours.thursday = thursday;
-    if (friday) businessHours.friday = friday;
-    if (saturday) businessHours.saturday = saturday;
-    if (sunday) businessHours.sunday = sunday;
+    // Ensure businessHours array exists
+    if (!customer.businessHours) customer.businessHours = [];
 
-    await businessHours.save();
+    // Create new business hours object
+    const newBusinessHours = { monday, tuesday, wednesday, thursday, friday, saturday, sunday };
 
-    return res.status(200).json({
-      message: "Time updated successfully",
-      data: businessHours,
+    // Push to array
+    customer.businessHours.push(newBusinessHours);
+    await customer.save();
+
+    // Return the newly added business hours
+    const addedBusinessHours = customer.businessHours[customer.businessHours.length - 1];
+
+    res.status(201).json({
+      message: "✅ Business hours created successfully",
+      businessHours: addedBusinessHours,
     });
   } catch (error) {
-    console.error("Error in updatetime:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error("Create Business Hours Error:", error);
+    res.status(500).json({ message: "Error creating business hours", error: error.message });
   }
-}
+};
 
-async function gettime(req, res) {
+// ======================= GET ALL BUSINESS HOURS BY CUSTOMER =======================
+const getAllBusinessHours = async (req, res) => {
   try {
-    const { adminId } = req.query;
+    const { customerId } = req.params;
 
-    let times;
-    if (adminId) {
-      times = await BusinessHours.find({ adminId });
-    } else {
-      times = await BusinessHours.find();
+    const customer = await Customer.findById(customerId);
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
     }
 
-    return res
-      .status(200)
-      .json({ message: "Fetched successfully", data: times });
+    res.status(200).json({ businessHours: customer.businessHours });
   } catch (error) {
-    console.error("Error in gettime:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error("Get Business Hours Error:", error);
+    res.status(500).json({ message: "Error fetching business hours", error: error.message });
   }
-}
+};
 
-async function deletetime(req, res) {
+// ======================= UPDATE BUSINESS HOURS =======================
+const updateBusinessHours = async (req, res) => {
   try {
-    const { id } = req.params;
-    const deleted = await BusinessHours.findByIdAndDelete(id);
+    const { customerId, id } = req.params; // id = businessHours id
+    const { monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body;
 
-    if (!deleted) {
-      return res.status(404).json({ message: "Business hours not found" });
-    }
+    const customer = await Customer.findById(customerId);
+    if (!customer) return res.status(404).json({ message: "Customer not found" });
 
-    return res.status(200).json({ message: "Time deleted successfully" });
+    // Find the business hours object
+    const bh = customer.businessHours.id(id);
+    if (!bh) return res.status(404).json({ message: "Business hours not found" });
+
+    // Update fields
+    bh.monday = monday ?? bh.monday;
+    bh.tuesday = tuesday ?? bh.tuesday;
+    bh.wednesday = wednesday ?? bh.wednesday;
+    bh.thursday = thursday ?? bh.thursday;
+    bh.friday = friday ?? bh.friday;
+    bh.saturday = saturday ?? bh.saturday;
+    bh.sunday = sunday ?? bh.sunday;
+
+    await customer.save();
+
+    res.status(200).json({ message: "✅ Business hours updated successfully", businessHours: bh });
   } catch (error) {
-    console.error("Error in deletetime:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error("Update Business Hours Error:", error);
+    res.status(500).json({ message: "Error updating business hours", error: error.message });
   }
-}
+};
 
-module.exports = { addtime, deletetime, gettime, updatetime };
+// ======================= DELETE BUSINESS HOURS =======================
+const deleteBusinessHours = async (req, res) => {
+  try {
+    const { customerId, id } = req.params; // id = businessHours id
+
+    const customer = await Customer.findById(customerId);
+    if (!customer) return res.status(404).json({ message: "Customer not found" });
+
+    // Remove the business hours object
+    const bh = customer.businessHours.id(id);
+    if (!bh) return res.status(404).json({ message: "Business hours not found" });
+
+    bh.remove();
+    await customer.save();
+
+    res.status(200).json({ message: "✅ Business hours deleted successfully" });
+  } catch (error) {
+    console.error("Delete Business Hours Error:", error);
+    res.status(500).json({ message: "Error deleting business hours", error: error.message });
+  }
+};
+
+module.exports = {
+  createBusinessHours,
+  getAllBusinessHours,
+  updateBusinessHours,
+  deleteBusinessHours,
+};
