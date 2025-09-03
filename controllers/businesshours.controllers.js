@@ -57,33 +57,44 @@ const getAllBusinessHours = async (req, res) => {
 // ======================= UPDATE BUSINESS HOURS =======================
 const updateBusinessHours = async (req, res) => {
   try {
-    const { customerId, id } = req.params; // id = businessHours id
+    const { customerId, id } = req.params; // customerId = Customer._id, id = businessHours._id
     const { monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body;
 
+    // Find the customer
     const customer = await Customer.findById(customerId);
-    if (!customer) return res.status(404).json({ message: "Customer not found" });
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
 
-    // Find the business hours object
+    // Find the specific business hours entry
     const bh = customer.businessHours.id(id);
-    if (!bh) return res.status(404).json({ message: "Business hours not found" });
+    if (!bh) {
+      return res.status(404).json({ message: "Business hours not found" });
+    }
 
-    // Update fields
-    bh.monday = monday ?? bh.monday;
-    bh.tuesday = tuesday ?? bh.tuesday;
-    bh.wednesday = wednesday ?? bh.wednesday;
-    bh.thursday = thursday ?? bh.thursday;
-    bh.friday = friday ?? bh.friday;
-    bh.saturday = saturday ?? bh.saturday;
-    bh.sunday = sunday ?? bh.sunday;
+    // Update the fields only if provided
+    if (monday !== undefined) bh.monday = monday;
+    if (tuesday !== undefined) bh.tuesday = tuesday;
+    if (wednesday !== undefined) bh.wednesday = wednesday;
+    if (thursday !== undefined) bh.thursday = thursday;
+    if (friday !== undefined) bh.friday = friday;
+    if (saturday !== undefined) bh.saturday = saturday;
+    if (sunday !== undefined) bh.sunday = sunday;
 
+    // Save the customer document
     await customer.save();
 
-    res.status(200).json({ message: "✅ Business hours updated successfully", businessHours: bh });
+    res.status(200).json({
+      message: "✅ Business hours updated successfully",
+      businessHours: bh,
+    });
   } catch (error) {
     console.error("Update Business Hours Error:", error);
     res.status(500).json({ message: "Error updating business hours", error: error.message });
   }
 };
+
+
 
 // ======================= DELETE BUSINESS HOURS =======================
 const deleteBusinessHours = async (req, res) => {
