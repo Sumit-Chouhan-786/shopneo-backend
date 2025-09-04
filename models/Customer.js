@@ -2,7 +2,9 @@ const mongoose = require("mongoose");
 
 // Product Schema (embedded)
 const productSchema = new mongoose.Schema({
-  name: { type: String},
+  name: {
+    type: String
+  },
   description: String,
   image: {
     url: String,
@@ -17,7 +19,10 @@ const blogSchema = new mongoose.Schema({
     url: String,
     public_id: String,
   },
-  heading: { type: String, required: true },
+  heading: {
+    type: String,
+    required: true
+  },
   description: String,
 });
 
@@ -33,52 +38,146 @@ const businessHoursSchema = new mongoose.Schema({
 });
 
 // Customer Schema
-const customerSchema = new mongoose.Schema(
-  {
-    slug: { type: String, required: true, unique: true, trim: true },
-    name: { type: String, required: true, trim: true },
-    businessName: { type: String, trim: true },
-
-    bannerImage: {
-      url: { type: String, trim: true },
-      public_id: { type: String, trim: true },
-    },
-    profileImage: {
-      url: { type: String, trim: true },
-      public_id: { type: String, trim: true },
-    },
-    galleryImages: [
-      {
-        url: { type: String, trim: true },
-        public_id: { type: String, trim: true },
-      },
-    ],
-
-    location: { type: String, trim: true },
-    email: { type: String, trim: true, lowercase: true, unique: true },
-    contact: { type: String, trim: true },
-    numberAlternative: { type: String, trim: true },
-    whatsapp: { type: String, trim: true },
-    instagram: { type: String, trim: true },
-    facebook: { type: String, trim: true },
-    youtube: { type: String, trim: true },
-    description: { type: String, trim: true },
- metaTitle: { type: String, default: "" }, 
-  metaKeywords: { type: [String], default: [] }, 
-  metaDescription: { type: String, default: "" }, 
-
-    adminId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin",
-      required: true,
-    },
-
-    products: [productSchema],         
-    blogs: [blogSchema],               
-    businessHours: { type: [businessHoursSchema], default: [] },                  
+const customerSchema = new mongoose.Schema({
+  slug: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
   },
-  { timestamps: true }
-);
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  businessName: {
+    type: String,
+    trim: true
+  },
+
+  bannerImage: {
+    url: {
+      type: String,
+      trim: true
+    },
+    public_id: {
+      type: String,
+      trim: true
+    },
+  },
+  profileImage: {
+    url: {
+      type: String,
+      trim: true
+    },
+    public_id: {
+      type: String,
+      trim: true
+    },
+  },
+  galleryImages: [{
+    url: {
+      type: String,
+      trim: true
+    },
+    public_id: {
+      type: String,
+      trim: true
+    },
+  }, ],
+
+  location: {
+    type: String,
+    trim: true
+  },
+  email: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    unique: true
+  },
+  contact: {
+    type: String,
+    trim: true
+  },
+  numberAlternative: {
+    type: String,
+    trim: true
+  },
+  whatsapp: {
+    type: String,
+    trim: true
+  },
+  instagram: {
+    type: String,
+    trim: true
+  },
+  facebook: {
+    type: String,
+    trim: true
+  },
+  youtube: {
+    type: String,
+    trim: true
+  },
+  description: {
+    type: String,
+    trim: true
+  },
+  metaTitle: {
+    type: String,
+    default: ""
+  },
+  metaKeywords: {
+    type: [String],
+    default: []
+  },
+  metaDescription: {
+    type: String,
+    default: ""
+  },
+
+  adminId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Admin",
+    required: true,
+  },
+
+  products: [productSchema],
+  blogs: [blogSchema],
+  businessHours: {
+    monday: {
+      type: String,
+      default: ""
+    },
+    tuesday: {
+      type: String,
+      default: ""
+    },
+    wednesday: {
+      type: String,
+      default: ""
+    },
+    thursday: {
+      type: String,
+      default: ""
+    },
+    friday: {
+      type: String,
+      default: ""
+    },
+    saturday: {
+      type: String,
+      default: ""
+    },
+    sunday: {
+      type: String,
+      default: ""
+    },
+  },
+}, {
+  timestamps: true
+});
 
 
 const Customer = mongoose.model("Customer", customerSchema);

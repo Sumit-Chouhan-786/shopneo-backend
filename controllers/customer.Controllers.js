@@ -18,6 +18,7 @@ async function addCustomer(req, res) {
       instagram,
       facebook,
       numberalternative,
+      businessHours,
       metaTitle,
       metaKeywords,
       metaDescription
@@ -45,6 +46,17 @@ async function addCustomer(req, res) {
       ? JSON.parse(metaKeywords)
       : [];
 
+          let parsedBusinessHours = {};
+    if (businessHours) {
+      try {
+        parsedBusinessHours = typeof businessHours === "string"
+          ? JSON.parse(businessHours)
+          : businessHours;
+      } catch (err) {
+        return res.status(400).json({ message: "Invalid businessHours format, must be JSON" });
+      }
+    }
+
     const newCustomer = await Customer.create({
       slug,
       name,
@@ -65,6 +77,7 @@ async function addCustomer(req, res) {
       bannerImage: bannerImageData,
       profileImage: profileImageData,
       galleryImages: galleryImagesData,
+      businessHours:parsedBusinessHours
     });
 
     res.status(201).json({ message: "Customer added successfully", newCustomer });
@@ -120,6 +133,7 @@ async function updateCustomer(req, res) {
       metaTitle,
       metaKeywords,
       metaDescription,
+      businessHours,
     } = req.body;
 
     // Check slug uniqueness
@@ -148,6 +162,17 @@ async function updateCustomer(req, res) {
     if (metaTitle) customer.metaTitle = String(metaTitle);
     if (metaDescription) customer.metaDescription = String(metaDescription);
     if (metaKeywords) customer.metaKeywords = JSON.parse(metaKeywords);
+      // ✅ Update business hours
+    if (businessHours) {
+      try {
+        customer.businessHours = typeof businessHours === "string"
+          ? JSON.parse(businessHours)
+          : businessHours;
+      } catch (err) {
+        return res.status(400).json({ message: "Invalid businessHours format, must be JSON" });
+      }
+    }
+
 
     // Handle Images
     if (req.files?.bannerImage) {
