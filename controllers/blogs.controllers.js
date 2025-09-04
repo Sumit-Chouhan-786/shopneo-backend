@@ -1,6 +1,7 @@
 const Blogs = require("../models/Blogs.js");
 const Customer = require("../models/Customer.js");
 const cloudinary = require("../config/cloudinary.js");
+const mongoose = require("mongoose")
 const fs = require("fs");
 
 // ======================= CREATE BLOG =======================
@@ -54,14 +55,21 @@ const createBlog = async (req, res) => {
 // ======================= GET ALL BLOGS BY CUSTOMER =======================
 const getAllBlogsByCustomer = async (req, res) => {
   try {
-    const customerId = req.params.customerId;
+    const { customerId } = req.params;
 
-    const blogs = await Blogs.find({ customerId }).populate(
-      "customerId",
-      "name businessName"
-    );
+    if (!mongoose.Types.ObjectId.isValid(customerId)) {
+      return res.status(400).json({ message: "Invalid customerId" });
+    }
 
-    res.status(200).json({ blogs });
+    // Sirf blogs nikalna
+    const customer = await Customer.findById(customerId).select("blogs");
+
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+
+    res.status(200).json(customer.blogs);
   } catch (error) {
     console.error("Get Blogs Error:", error);
     res.status(500).json({ message: "Error fetching blogs", error: error.message });
