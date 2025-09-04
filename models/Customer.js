@@ -26,7 +26,6 @@ const blogSchema = new mongoose.Schema({
 
 });
 
-
 // Customer Schema
 const customerSchema = new mongoose.Schema({
   slug: {
