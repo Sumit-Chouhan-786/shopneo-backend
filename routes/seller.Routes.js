@@ -16,7 +16,7 @@ const cpUpload = upload.fields([{ name: "logo", maxCount: 1 }]);
 
 // Routes
 sellerRoutes.post("/addseller", authmiddleware, cpUpload, addSeller);
-sellerRoutes.get("/getsellers", authmiddleware, getSellers);
+sellerRoutes.get("/getsellers", getSellers);
 sellerRoutes.get("/getseller/:id", authmiddleware, getOneSeller);
 sellerRoutes.put("/updateseller/:id", authmiddleware, cpUpload, updateSeller);
 sellerRoutes.delete("/deleteseller/:id", authmiddleware, deleteSeller);

@@ -24,7 +24,7 @@ const cpUpload = upload.fields([
 
 // Routes
 customerRoutes.post("/addcustomer", authMiddleware, cpUpload, addCustomer);
-customerRoutes.get("/getcustomer", authMiddleware, getCustomer);
+customerRoutes.get("/getcustomer", getCustomer);
 customerRoutes.get("/getcustomer/:id", authMiddleware, getOneCustomer);
 customerRoutes.put("/updatecustomer/:id", authMiddleware, cpUpload, updateCustomer);
 customerRoutes.delete("/deletecustomer/:id", authMiddleware, deleteCustomer);
