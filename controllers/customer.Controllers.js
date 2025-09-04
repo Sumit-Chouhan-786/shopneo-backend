@@ -263,6 +263,7 @@ async function uploadMultipleImages(files, folder) {
   return data;
 }
 
+
 module.exports = {
   addCustomer,
   getCustomer,

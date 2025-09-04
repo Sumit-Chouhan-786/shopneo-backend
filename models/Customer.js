@@ -15,27 +15,17 @@ const productSchema = new mongoose.Schema({
 
 // Blog Schema (embedded)
 const blogSchema = new mongoose.Schema({
-  img: {
+    heading: {
+    type: String,
+  },
+  description: String,
+  image: {
     url: String,
     public_id: String,
   },
-  heading: {
-    type: String,
-    required: true
-  },
-  description: String,
+
 });
 
-// Business Hours Schema (embedded)
-const businessHoursSchema = new mongoose.Schema({
-  monday: String,
-  tuesday: String,
-  wednesday: String,
-  thursday: String,
-  friday: String,
-  saturday: String,
-  sunday: String,
-});
 
 // Customer Schema
 const customerSchema = new mongoose.Schema({

@@ -15,7 +15,7 @@ const {
 
 // Create Blog for a specific Customer
 blogsRoutes.post(
-  "/addblog/:customerId",        // <-- customerId params me
+  "/addblog/:customerId",       
   authMiddleware,
   upload.single("image"),
   createBlog
@@ -23,7 +23,7 @@ blogsRoutes.post(
 
 // Get all Blogs for a specific Customer
 blogsRoutes.get(
-  "/allblogs/:customerId",       // <-- specific customer ke liye
+  "/allblogs/:customerId",      
   authMiddleware,
   getAllBlogsByCustomer
 );
@@ -45,3 +45,8 @@ blogsRoutes.delete(
 );
 
 module.exports = blogsRoutes;
+
+
+
+
+
