@@ -97,11 +97,11 @@ const customerSchema = new mongoose.Schema({
     unique: true
   },
   contact: {
-    type: String,
+    type: Number,
     trim: true
   },
   numberAlternative: {
-    type: String,
+    type: Number,
     trim: true
   },
   whatsapp: {
@@ -147,32 +147,32 @@ const customerSchema = new mongoose.Schema({
   blogs: [blogSchema],
   businessHours: {
     monday: {
-      type: String,
-      default: ""
+      open: { type: String, default: "" },
+      close: { type: String, default: "" },
     },
     tuesday: {
-      type: String,
-      default: ""
+      open: { type: String, default: "" },
+      close: { type: String, default: "" },
     },
     wednesday: {
-      type: String,
-      default: ""
+      open: { type: String, default: "" },
+      close: { type: String, default: "" },
     },
     thursday: {
-      type: String,
-      default: ""
+      open: { type: String, default: "" },
+      close: { type: String, default: "" },
     },
     friday: {
-      type: String,
-      default: ""
+      open: { type: String, default: "" },
+      close: { type: String, default: "" },
     },
     saturday: {
-      type: String,
-      default: ""
+      open: { type: String, default: "" },
+      close: { type: String, default: "" },
     },
     sunday: {
-      type: String,
-      default: ""
+      open: { type: String, default: "" },
+      close: { type: String, default: "" },
     },
   },
 }, {

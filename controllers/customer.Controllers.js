@@ -21,13 +21,15 @@ async function addCustomer(req, res) {
       businessHours,
       metaTitle,
       metaKeywords,
-      metaDescription
+      metaDescription,
     } = req.body;
 
     // Check slug uniqueness
     const existing = await Customer.findOne({ slug });
     if (existing) {
-      return res.status(400).json({ message: "Slug already exists, use a different slug" });
+      return res
+        .status(400)
+        .json({ message: "Slug already exists, use a different slug" });
     }
 
     // Handle Images
@@ -41,19 +43,21 @@ async function addCustomer(req, res) {
       ? await uploadMultipleImages(req.files.galleryImages, "customers/gallery")
       : [];
 
-    // Parse SEO fields properly
-    const parsedMetaKeywords = metaKeywords
-      ? JSON.parse(metaKeywords)
-      : [];
+    // Parse SEO fields
+    const parsedMetaKeywords = metaKeywords ? JSON.parse(metaKeywords) : [];
 
-          let parsedBusinessHours = {};
+    // ✅ Parse Business Hours
+    let parsedBusinessHours = {};
     if (businessHours) {
       try {
-        parsedBusinessHours = typeof businessHours === "string"
-          ? JSON.parse(businessHours)
-          : businessHours;
+        parsedBusinessHours =
+          typeof businessHours === "string"
+            ? JSON.parse(businessHours)
+            : businessHours;
       } catch (err) {
-        return res.status(400).json({ message: "Invalid businessHours format, must be JSON" });
+        return res.status(400).json({
+          message: "Invalid businessHours format, must be valid JSON",
+        });
       }
     }
 
@@ -77,13 +81,17 @@ async function addCustomer(req, res) {
       bannerImage: bannerImageData,
       profileImage: profileImageData,
       galleryImages: galleryImagesData,
-      businessHours:parsedBusinessHours
+      businessHours: parsedBusinessHours,
     });
 
-    res.status(201).json({ message: "Customer added successfully", newCustomer });
+    res
+      .status(201)
+      .json({ message: "Customer added successfully", newCustomer });
   } catch (error) {
     console.error("Add Customer Error:", error);
-    res.status(500).json({ message: "Error adding customer", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error adding customer", error: error.message });
   }
 }
 
@@ -91,9 +99,13 @@ async function addCustomer(req, res) {
 async function getCustomer(req, res) {
   try {
     const customers = await Customer.find();
-    res.status(200).json({ message: "Customers fetched successfully", customers });
+    res
+      .status(200)
+      .json({ message: "Customers fetched successfully", customers });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 }
 
@@ -102,11 +114,16 @@ async function getOneCustomer(req, res) {
   try {
     const { id } = req.params;
     const customer = await Customer.findById(id);
-    if (!customer) return res.status(404).json({ message: "Customer not found" });
+    if (!customer)
+      return res.status(404).json({ message: "Customer not found" });
 
-    res.status(200).json({ message: "Customer fetched successfully", customer });
+    res
+      .status(200)
+      .json({ message: "Customer fetched successfully", customer });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 }
 
@@ -115,7 +132,8 @@ async function updateCustomer(req, res) {
   try {
     const { id } = req.params;
     const customer = await Customer.findById(id);
-    if (!customer) return res.status(404).json({ message: "Customer not found" });
+    if (!customer)
+      return res.status(404).json({ message: "Customer not found" });
 
     const {
       slug,
@@ -139,7 +157,8 @@ async function updateCustomer(req, res) {
     // Check slug uniqueness
     if (slug && slug !== customer.slug) {
       const existing = await Customer.findOne({ slug });
-      if (existing) return res.status(400).json({ message: "Slug already exists" });
+      if (existing)
+        return res.status(400).json({ message: "Slug already exists" });
       customer.slug = slug;
     }
 
@@ -162,27 +181,39 @@ async function updateCustomer(req, res) {
     if (metaTitle) customer.metaTitle = String(metaTitle);
     if (metaDescription) customer.metaDescription = String(metaDescription);
     if (metaKeywords) customer.metaKeywords = JSON.parse(metaKeywords);
-      // ✅ Update business hours
+
+    // ✅ Parse Business Hours
     if (businessHours) {
       try {
-        customer.businessHours = typeof businessHours === "string"
-          ? JSON.parse(businessHours)
-          : businessHours;
+        customer.businessHours =
+          typeof businessHours === "string"
+            ? JSON.parse(businessHours)
+            : businessHours;
       } catch (err) {
-        return res.status(400).json({ message: "Invalid businessHours format, must be JSON" });
+        return res.status(400).json({
+          message: "Invalid businessHours format, must be valid JSON",
+        });
       }
     }
 
-
     // Handle Images
     if (req.files?.bannerImage) {
-      customer.bannerImage = await uploadImage(req.files.bannerImage[0], "customers/banner");
+      customer.bannerImage = await uploadImage(
+        req.files.bannerImage[0],
+        "customers/banner"
+      );
     }
     if (req.files?.profileImage) {
-      customer.profileImage = await uploadImage(req.files.profileImage[0], "customers/profile");
+      customer.profileImage = await uploadImage(
+        req.files.profileImage[0],
+        "customers/profile"
+      );
     }
     if (req.files?.galleryImages) {
-      const galleryData = await uploadMultipleImages(req.files.galleryImages, "customers/gallery");
+      const galleryData = await uploadMultipleImages(
+        req.files.galleryImages,
+        "customers/gallery"
+      );
       customer.galleryImages = [...customer.galleryImages, ...galleryData];
     }
 
@@ -190,7 +221,9 @@ async function updateCustomer(req, res) {
     res.status(200).json({ message: "Customer updated successfully", customer });
   } catch (error) {
     console.error("Update Customer Error:", error);
-    res.status(500).json({ message: "Error updating customer", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error updating customer", error: error.message });
   }
 }
 
@@ -199,11 +232,16 @@ async function deleteCustomer(req, res) {
   try {
     const { id } = req.params;
     const deleteCustomer = await Customer.findByIdAndDelete(id);
-    if (!deleteCustomer) return res.status(404).json({ message: "Customer not found" });
+    if (!deleteCustomer)
+      return res.status(404).json({ message: "Customer not found" });
 
-    res.status(200).json({ message: "Customer deleted successfully", deleteCustomer });
+    res
+      .status(200)
+      .json({ message: "Customer deleted successfully", deleteCustomer });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 }
 
@@ -225,4 +263,10 @@ async function uploadMultipleImages(files, folder) {
   return data;
 }
 
-module.exports = { addCustomer, getCustomer, getOneCustomer, updateCustomer, deleteCustomer };
+module.exports = {
+  addCustomer,
+  getCustomer,
+  getOneCustomer,
+  updateCustomer,
+  deleteCustomer,
+};
