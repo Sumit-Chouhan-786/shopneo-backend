@@ -1,6 +1,8 @@
 const Customer = require("../models/Customer.js");
 const cloudinary = require("../config/cloudinary.js");
 const fs = require("fs");
+const Products = require("../models/Product.js");
+const Blogs = require("../models/Blogs.js");
 
 // Add Customer
 async function addCustomer(req, res) {
@@ -230,20 +232,45 @@ async function updateCustomer(req, res) {
 // Delete Customer
 async function deleteCustomer(req, res) {
   try {
-    const { id } = req.params;
-    const deleteCustomer = await Customer.findByIdAndDelete(id);
-    if (!deleteCustomer)
-      return res.status(404).json({ message: "Customer not found" });
+    const { id } = req.params; // customerId
 
-    res
-      .status(200)
-      .json({ message: "Customer deleted successfully", deleteCustomer });
+    // 1️⃣ Delete the customer
+    const deletedCustomer = await Customer.findByIdAndDelete(id);
+    if (!deletedCustomer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    // 2️⃣ Delete all products for this customer
+    const products = await Products.find({ customerId: id });
+    for (let product of products) {
+      if (product.image?.public_id) {
+        await cloudinary.uploader.destroy(product.image.public_id);
+      }
+      await product.deleteOne();
+    }
+
+    // 3️⃣ Delete all blogs for this customer
+    const blogs = await Blogs.find({ customerId: id });
+    for (let blog of blogs) {
+      if (blog.image?.public_id) {
+        await cloudinary.uploader.destroy(blog.image.public_id);
+      }
+      await blog.deleteOne();
+    }
+
+    // ✅ Send one final response after everything is deleted
+    res.status(200).json({
+      message: "Customer, products, and blogs deleted successfully",
+      deletedCustomer,
+      deletedProductsCount: products.length,
+      deletedBlogsCount: blogs.length,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+    console.error("Delete Customer Error:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 }
+
 
 // Helper: upload single image
 async function uploadImage(file, folder) {
