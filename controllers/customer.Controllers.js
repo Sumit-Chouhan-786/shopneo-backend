@@ -100,16 +100,22 @@ async function addCustomer(req, res) {
 // Get All Customers
 async function getCustomer(req, res) {
   try {
-    const customers = await Customer.find();
-    res
-      .status(200)
-      .json({ message: "Customers fetched successfully", customers });
+    const customers = await Customer.find()
+      .populate("products") 
+      .populate("blogs");   
+
+    res.status(200).json({
+      message: "Customers fetched successfully",
+      customers,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 }
+
 
 // Get One Customer
 async function getOneCustomer(req, res) {
